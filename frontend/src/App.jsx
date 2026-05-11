@@ -18,6 +18,7 @@ function App() {
   const [chatHistory, setChatHistory] = useState([]);
   const [aiSummary, setAiSummary] = useState("");
   const [predictions, setPredictions] = useState([]);
+  const [actionPlan, setActionPlan] = useState([]);
   const [isAsking, setIsAsking] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [complaint, setComplaint] = useState("");
@@ -59,6 +60,11 @@ function App() {
     fetch("http://127.0.0.1:8000/predictions/")
       .then((res) => res.json())
       .then((data) => setPredictions(data))
+      .catch((err) => console.error(err));
+
+    fetch("http://127.0.0.1:8000/dashboard/action-plan")
+      .then((res) => res.json())
+      .then((data) => setActionPlan(data))
       .catch((err) => console.error(err));
   }, []);
 
@@ -277,6 +283,39 @@ function App() {
                   <p className="text-zinc-300 leading-relaxed">
                     {aiSummary || dashboard.daily_summary}
                   </p>
+
+                  <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
+                    <h2 className="text-2xl font-semibold mb-5">
+                      AI Daily Action Plan
+                    </h2>
+
+                    <div className="space-y-4">
+                      {actionPlan.map((item, index) => (
+                        <div
+                          key={index}
+                          className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 flex items-start justify-between"
+                        >
+                          <div>
+                            <p className="font-medium text-white">
+                              {item.action}
+                            </p>
+                          </div>
+
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              item.priority === "High"
+                                ? "bg-red-500/20 text-red-300"
+                                : item.priority === "Medium"
+                                ? "bg-yellow-500/20 text-yellow-300"
+                                : "bg-green-500/20 text-green-300"
+                            }`}
+                          >
+                            {item.priority}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <button
                     onClick={handleDownloadReport}
                     className="mt-6 bg-white text-black px-6 py-3 rounded-xl font-semibold hover:bg-zinc-300 transition"
