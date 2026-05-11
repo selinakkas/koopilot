@@ -24,6 +24,11 @@ function App() {
   const [complaintResult, setComplaintResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  const [showAllNotifications, setShowAllNotifications] = useState(false);
+  const [showAllPredictions, setShowAllPredictions] = useState(false);
+  const [showAllOrders, setShowAllOrders] = useState(false);
+  const [showAllProducts, setShowAllProducts] = useState(false);
+
   useEffect(() => {
     fetch("http://127.0.0.1:8000/dashboard/summary")
       .then((res) => res.json())
@@ -50,7 +55,7 @@ function App() {
       .then((data) => setNotifications(data))
       .catch((err) => console.error(err));
 
-      fetch("http://127.0.0.1:8000/predictions/")
+    fetch("http://127.0.0.1:8000/predictions/")
       .then((res) => res.json())
       .then((data) => setPredictions(data))
       .catch((err) => console.error(err));
@@ -108,62 +113,85 @@ function App() {
   };
 
   const handleComplaintAnalysis = async () => {
-  if (!complaint.trim()) return;
+    if (!complaint.trim()) return;
 
-  setIsAnalyzing(true);
-  setComplaintResult(null);
+    setIsAnalyzing(true);
+    setComplaintResult(null);
 
-  try {
-    const response = await fetch("http://127.0.0.1:8000/complaints/analyze", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        customer_message: complaint,
-      }),
-    });
+    try {
+      const response = await fetch("http://127.0.0.1:8000/complaints/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer_message: complaint,
+        }),
+      });
 
-    const data = await response.json();
-    setComplaintResult(data);
-  } catch (error) {
-    console.error(error);
-    setComplaintResult({
-      severity: "ERROR",
-      summary: complaint,
-      recommended_action: "Something went wrong while analyzing the complaint.",
-    });
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
+      const data = await response.json();
+      setComplaintResult(data);
+    } catch (error) {
+      console.error(error);
+
+      setComplaintResult({
+        severity: "ERROR",
+        summary: complaint,
+        recommended_action:
+          "Something went wrong while analyzing the complaint.",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-10">
           <h1 className="text-5xl font-bold">Koopilot</h1>
+
           <p className="text-zinc-400 mt-2">
             AI-powered operations copilot for small businesses
           </p>
-          <div className="mt-4 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-  <p className="text-sm text-zinc-400 mb-3">Smart Notifications</p>
 
-  <div className="space-y-2">
-    {notifications.map((notification, index) => (
-      <div
-        key={index}
-        className={`px-4 py-3 rounded-lg border text-sm ${
-          notification.type === "critical"
-            ? "bg-red-500/10 border-red-500/20 text-red-300"
-            : "bg-yellow-500/10 border-yellow-500/20 text-yellow-300"
-        }`}>
-        {notification.type === "critical" ? "🚨" : "⚠"}{" "}
-        {notification.message}
-      </div>
-      ))}
-  </div>
-</div>
+          <div className="mt-4 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+            <p className="text-sm text-zinc-400 mb-3">
+              Smart Notifications
+            </p>
+
+            <div className="space-y-2">
+              {(showAllNotifications
+                ? notifications
+                : notifications.slice(0, 3)
+              ).map((notification, index) => (
+                <div
+                  key={index}
+                  className={`px-4 py-3 rounded-lg border text-sm ${
+                    notification.type === "critical"
+                      ? "bg-red-500/10 border-red-500/20 text-red-300"
+                      : "bg-yellow-500/10 border-yellow-500/20 text-yellow-300"
+                  }`}
+                >
+                  {notification.type === "critical" ? "🚨" : "⚠"}{" "}
+                  {notification.message}
+                </div>
+              ))}
+            </div>
+
+            {notifications.length > 3 && (
+              <button
+                onClick={() =>
+                  setShowAllNotifications(!showAllNotifications)
+                }
+                className="mt-4 bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-xl text-sm hover:bg-zinc-700 transition"
+              >
+                {showAllNotifications
+                  ? "Show less"
+                  : `Show more (${notifications.length - 3})`}
+              </button>
+            )}
+          </div>
         </div>
 
         {!dashboard ? (
@@ -172,14 +200,20 @@ function App() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-                <h2 className="text-zinc-400 text-sm mb-2">Total Orders</h2>
-                <p className="text-4xl font-bold">{dashboard.total_orders}</p>
+                <h2 className="text-zinc-400 text-sm mb-2">
+                  Total Orders
+                </h2>
+
+                <p className="text-4xl font-bold">
+                  {dashboard.total_orders}
+                </p>
               </div>
 
               <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
                 <h2 className="text-zinc-400 text-sm mb-2">
                   Delayed Shipments
                 </h2>
+
                 <p className="text-4xl font-bold text-red-400">
                   {dashboard.delayed_shipments}
                 </p>
@@ -189,11 +223,10 @@ function App() {
                 <h2 className="text-zinc-400 text-sm mb-2">
                   Critical Products
                 </h2>
+
                 <p className="text-4xl font-bold text-yellow-400">
                   {dashboard.critical_products}
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                </div>
               </div>
             </div>
 
@@ -245,7 +278,10 @@ function App() {
               </h2>
 
               <div className="space-y-3">
-                {predictions.map((prediction, index) => (
+                {(showAllPredictions
+                  ? predictions
+                  : predictions.slice(0, 3)
+                ).map((prediction, index) => (
                   <div
                     key={index}
                     className={`px-4 py-3 rounded-xl border ${
@@ -259,10 +295,25 @@ function App() {
                   </div>
                 ))}
               </div>
+
+              {predictions.length > 3 && (
+                <button
+                  onClick={() =>
+                    setShowAllPredictions(!showAllPredictions)
+                  }
+                  className="mt-4 bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-xl text-sm hover:bg-zinc-700 transition"
+                >
+                  {showAllPredictions
+                    ? "Show less"
+                    : `Show more (${predictions.length - 3})`}
+                </button>
+              )}
             </div>
 
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
-              <h2 className="text-2xl font-semibold mb-4">Recent Orders</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Recent Orders
+              </h2>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -277,7 +328,10 @@ function App() {
                   </thead>
 
                   <tbody>
-                    {orders.map((order) => (
+                    {(showAllOrders
+                      ? orders
+                      : orders.slice(0, 5)
+                    ).map((order) => (
                       <tr key={order.id} className="border-b border-zinc-800">
                         <td className="py-3">#{order.id}</td>
                         <td className="py-3">{order.customer}</td>
@@ -290,6 +344,8 @@ function App() {
                                 ? "bg-red-500/20 text-red-300"
                                 : order.status === "Shipped"
                                 ? "bg-blue-500/20 text-blue-300"
+                                : order.status === "Delivered"
+                                ? "bg-green-500/20 text-green-300"
                                 : "bg-zinc-800 text-zinc-300"
                             }`}
                           >
@@ -301,10 +357,23 @@ function App() {
                   </tbody>
                 </table>
               </div>
+
+              {orders.length > 5 && (
+                <button
+                  onClick={() => setShowAllOrders(!showAllOrders)}
+                  className="mt-4 bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-xl text-sm hover:bg-zinc-700 transition"
+                >
+                  {showAllOrders
+                    ? "Show less"
+                    : `Show more (${orders.length - 5})`}
+                </button>
+              )}
             </div>
 
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
-              <h2 className="text-2xl font-semibold mb-4">Inventory Status</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Inventory Status
+              </h2>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -318,7 +387,10 @@ function App() {
                   </thead>
 
                   <tbody>
-                    {products.map((product) => {
+                    {(showAllProducts
+                      ? products
+                      : products.slice(0, 5)
+                    ).map((product) => {
                       const isCritical =
                         product.stock <= product.critical_stock;
 
@@ -347,6 +419,17 @@ function App() {
                   </tbody>
                 </table>
               </div>
+
+              {products.length > 5 && (
+                <button
+                  onClick={() => setShowAllProducts(!showAllProducts)}
+                  className="mt-4 bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-xl text-sm hover:bg-zinc-700 transition"
+                >
+                  {showAllProducts
+                    ? "Show less"
+                    : `Show more (${products.length - 5})`}
+                </button>
+              )}
             </div>
 
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
@@ -357,20 +440,9 @@ function App() {
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={products}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#27272a"
-                    />
-
-                    <XAxis
-                      dataKey="name"
-                      stroke="#a1a1aa"
-                    />
-
-                    <YAxis
-                      stroke="#a1a1aa"
-                    />
-
+                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                    <XAxis dataKey="name" stroke="#a1a1aa" />
+                    <YAxis stroke="#a1a1aa" />
                     <Tooltip />
 
                     <Bar
@@ -382,7 +454,6 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </div>
-                
 
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
               <h2 className="text-2xl font-semibold mb-4">
@@ -390,7 +461,8 @@ function App() {
               </h2>
 
               <p className="text-zinc-400 mb-4">
-                Simulate a customer complaint and let Koopilot classify its severity and suggest an action.
+                Simulate a customer complaint and let Koopilot classify its
+                severity and suggest an action.
               </p>
 
               <textarea
@@ -425,23 +497,27 @@ function App() {
                   </div>
 
                   <p className="text-zinc-300 mb-3">
-                    <span className="font-semibold text-white">Complaint:</span>{" "}
+                    <span className="font-semibold text-white">
+                      Complaint:
+                    </span>{" "}
                     {complaintResult.summary}
                   </p>
 
                   <p className="text-zinc-300">
-                    <span className="font-semibold text-white">Recommended Action:</span>{" "}
+                    <span className="font-semibold text-white">
+                      Recommended Action:
+                    </span>{" "}
                     {complaintResult.recommended_action}
                   </p>
                 </div>
               )}
             </div>
 
-            
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
               <h2 className="text-2xl font-semibold mb-4">
                 AI Operations Assistant
               </h2>
+
               <div className="flex flex-wrap gap-3 mb-4">
                 {[
                   "Where is order 128?",
@@ -457,8 +533,6 @@ function App() {
                   </button>
                 ))}
               </div>
-
-              <div className="flex gap-4"></div>
 
               <div className="flex gap-4">
                 <input
