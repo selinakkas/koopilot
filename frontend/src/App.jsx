@@ -5,8 +5,9 @@ function App() {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("");
-  const [aiSummary, setAiSummary] = useState("");
   const [chatResponse, setChatResponse] = useState("");
+  const [aiSummary, setAiSummary] = useState("");
+  const [isAsking, setIsAsking] = useState(false);
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/dashboard/summary")
@@ -23,15 +24,18 @@ function App() {
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error(err));
-      }, []);
 
     fetch("http://127.0.0.1:8000/dashboard/ai-summary")
-    .then((res) => res.json())
-    .then((data) => setAiSummary(data.summary))
-    .catch((err) => console.error(err));
+      .then((res) => res.json())
+      .then((data) => setAiSummary(data.summary))
+      .catch((err) => console.error(err));
+  }, []);
 
   const handleChat = async () => {
     if (!message.trim()) return;
+
+    setIsAsking(true);
+    setChatResponse("");
 
     try {
       const response = await fetch("http://127.0.0.1:8000/chat/", {
@@ -47,6 +51,8 @@ function App() {
     } catch (error) {
       console.error(error);
       setChatResponse("Something went wrong while contacting the assistant.");
+    } finally {
+      setIsAsking(false);
     }
   };
 
@@ -92,7 +98,7 @@ function App() {
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
               <h2 className="text-2xl font-semibold mb-4">Daily AI Summary</h2>
               <p className="text-zinc-300 leading-relaxed">
-                {aiSummary}
+                {aiSummary || dashboard.daily_summary}
               </p>
             </div>
 
@@ -127,9 +133,9 @@ function App() {
                                 ? "bg-blue-500/20 text-blue-300"
                                 : "bg-zinc-800 text-zinc-300"
                             }`}
-                            >
-                              {order.status}
-                            </span>
+                          >
+                            {order.status}
+                          </span>
                         </td>
                       </tr>
                     ))}
@@ -154,7 +160,8 @@ function App() {
 
                   <tbody>
                     {products.map((product) => {
-                      const isCritical = product.stock <= product.critical_stock;
+                      const isCritical =
+                        product.stock <= product.critical_stock;
 
                       return (
                         <tr
@@ -199,9 +206,10 @@ function App() {
 
                 <button
                   onClick={handleChat}
-                  className="bg-white text-black px-6 py-3 rounded-xl font-semibold hover:bg-zinc-300 transition"
+                  disabled={isAsking}
+                  className="bg-white text-black px-6 py-3 rounded-xl font-semibold hover:bg-zinc-300 transition disabled:opacity-60"
                 >
-                  Ask AI
+                  {isAsking ? "Thinking..." : "Ask AI"}
                 </button>
               </div>
 
