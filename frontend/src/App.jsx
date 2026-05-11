@@ -220,6 +220,23 @@ function App() {
               <h2 className="text-2xl font-semibold mb-4">
                 AI Operations Assistant
               </h2>
+              <div className="flex flex-wrap gap-3 mb-4">
+                {[
+                  "Where is order 128?",
+                  "Which products are low in stock?",
+                  "Which orders are delayed?",
+                ].map((prompt) => (
+                  <button
+                    key={prompt}
+                    onClick={() => setMessage(prompt)}
+                    className="bg-zinc-800 border border-zinc-700 text-zinc-300 px-4 py-2 rounded-full text-sm hover:bg-zinc-700 transition"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-4"></div>
 
               <div className="flex gap-4">
                 <input
