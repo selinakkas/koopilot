@@ -1,29 +1,43 @@
-import json
-from pathlib import Path
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, HTTPException
+from app.database.database import get_db
+from app.database.models import Order
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-
-
-def load_orders():
-    with open(DATA_DIR / "orders.json", "r", encoding="utf-8") as file:
-        return json.load(file)
-
 
 @router.get("/")
-def get_orders():
-    return load_orders()
+def get_orders(db: Session = Depends(get_db)):
+    orders = db.query(Order).all()
+
+    return [
+        {
+            "id": order.id,
+            "customer": order.customer,
+            "product": order.product,
+            "quantity": order.quantity,
+            "status": order.status,
+            "cargo_id": order.cargo_id,
+        }
+        for order in orders
+    ]
 
 
 @router.get("/{order_id}")
-def get_order(order_id: int):
-    orders = load_orders()
+def get_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
 
-    for order in orders:
-        if order["id"] == order_id:
-            return order
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
 
-    raise HTTPException(status_code=404, detail="Order not found")
+    return {
+        "id": order.id,
+        "customer": order.customer,
+        "product": order.product,
+        "quantity": order.quantity,
+        "status": order.status,
+        "cargo_id": order.cargo_id,
+    }
