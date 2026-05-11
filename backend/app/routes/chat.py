@@ -4,6 +4,8 @@ from pathlib import Path
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from app.services.ai_service import generate_ai_response
+
 router = APIRouter(prefix="/chat", tags=["AI Chat"])
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -78,34 +80,20 @@ def get_delayed_orders_answer():
 
 @router.post("/")
 def chat(request: ChatRequest):
-    message = request.message.lower()
+    orders = load_json("orders.json")
+    products = load_json("products.json")
+    cargos = load_json("cargos.json")
 
-    order_result = find_order_by_id(message)
-
-    if order_result:
-        order = order_result["order"]
-        cargo = order_result["cargo"]
-
-        cargo_status = cargo["status"] if cargo else "Unknown"
-        estimated_delivery = cargo.get("estimated_delivery", "Unknown") if cargo else "Unknown"
-
-        return {
-            "answer": (
-                f"Order #{order['id']} is currently {order['status']}. "
-                f"Cargo status: {cargo_status}. "
-                f"Estimated delivery: {estimated_delivery}."
-            )
-        }
-
-    if "stock" in message or "inventory" in message or "low" in message:
-        return {"answer": get_critical_stock_answer()}
-
-    if "delayed" in message or "delay" in message or "cargo" in message or "shipment" in message:
-        return {"answer": get_delayed_orders_answer()}
-
-    return {
-        "answer": (
-            "You can ask me about orders, stock levels, or shipments. "
-            "For example: 'Where is order 128?'"
-        )
+    context = {
+        "orders": orders,
+        "products": products,
+        "cargos": cargos,
     }
+
+    try:
+        ai_answer = generate_ai_response(request.message, context)
+        return {"answer": ai_answer}
+    except Exception:
+        pass
+
+    message = request.message.lower()
