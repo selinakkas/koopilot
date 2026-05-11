@@ -1,12 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.database.database import Base
+from app.database.database import engine
+from app.database.seed import seed_database
 from app.routes.chat import router as chat_router
 from app.routes.dashboard import router as dashboard_router
 from app.routes.orders import router as orders_router
 from app.routes.products import router as products_router
 
 app = FastAPI(title="Koopilot API")
+
+Base.metadata.create_all(bind=engine)
+seed_database()
 
 app.add_middleware(
     CORSMiddleware,

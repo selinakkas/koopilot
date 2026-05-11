@@ -2,6 +2,11 @@ import json
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
+from sqlalchemy.orm import Session
+from fastapi import Depends
+
+from app.database.database import get_db
+from app.database.models import Product
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -14,8 +19,18 @@ def load_products():
 
 
 @router.get("/")
-def get_products():
-    return load_products()
+def get_products(db: Session = Depends(get_db)):
+    products = db.query(Product).all()
+
+    return [
+        {
+            "id": product.id,
+            "name": product.name,
+            "stock": product.stock,
+            "critical_stock": product.critical_stock,
+        }
+        for product in products
+    ]
 
 
 @router.get("/critical")
