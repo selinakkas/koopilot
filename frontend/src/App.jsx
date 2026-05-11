@@ -8,6 +8,7 @@ function App() {
   const [chatHistory, setChatHistory] = useState([]);
   const [aiSummary, setAiSummary] = useState("");
   const [isAsking, setIsAsking] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/dashboard/summary")
@@ -28,6 +29,11 @@ function App() {
     fetch("http://127.0.0.1:8000/dashboard/ai-summary")
       .then((res) => res.json())
       .then((data) => setAiSummary(data.summary))
+      .catch((err) => console.error(err));
+
+    fetch("http://127.0.0.1:8000/notifications/")
+      .then((res) => res.json())
+      .then((data) => setNotifications(data))
       .catch((err) => console.error(err));
   }, []);
 
@@ -90,9 +96,24 @@ function App() {
           <p className="text-zinc-400 mt-2">
             AI-powered operations copilot for small businesses
           </p>
-          <div className="mt-4 bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 px-4 py-3 rounded-xl">
-            ⚠ Live Alert: Order #129 has been marked as delayed.
-          </div>
+          <div className="mt-4 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+  <p className="text-sm text-zinc-400 mb-3">Smart Notifications</p>
+
+  <div className="space-y-2">
+    {notifications.map((notification, index) => (
+      <div
+        key={index}
+        className={`px-4 py-3 rounded-lg border text-sm ${
+          notification.type === "critical"
+            ? "bg-red-500/10 border-red-500/20 text-red-300"
+            : "bg-yellow-500/10 border-yellow-500/20 text-yellow-300"
+        }`}>
+        {notification.type === "critical" ? "🚨" : "⚠"}{" "}
+        {notification.message}
+      </div>
+      ))}
+  </div>
+</div>
         </div>
 
         {!dashboard ? (
