@@ -1,0 +1,18 @@
+[
+  {
+    "id": 128,
+    "customer": "Ayşe Demir",
+    "product": "Zeytinyağı",
+    "quantity": 2,
+    "status": "Shipped",
+    "cargo_id": 5001
+  },
+  {
+    "id": 129,
+    "customer": "Mehmet Kaya",
+    "product": "Bal",
+    "quantity": 1,
+    "status": "Delayed",
+    "cargo_id": 5002
+  }
+]

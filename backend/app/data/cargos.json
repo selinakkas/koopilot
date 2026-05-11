@@ -1,0 +1,12 @@
+[
+  {
+    "cargo_id": 5001,
+    "status": "On the way",
+    "estimated_delivery": "Tomorrow"
+  },
+  {
+    "cargo_id": 5002,
+    "status": "Delayed",
+    "estimated_delivery": "2 days later"
+  }
+]

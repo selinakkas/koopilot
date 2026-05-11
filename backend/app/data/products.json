@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Zeytinyağı",
+    "stock": 120,
+    "critical_stock": 30
+  },
+  {
+    "id": 2,
+    "name": "Bal",
+    "stock": 15,
+    "critical_stock": 25
+  },
+  {
+    "id": 3,
+    "name": "Domates",
+    "stock": 40,
+    "critical_stock": 50
+  }
+]
