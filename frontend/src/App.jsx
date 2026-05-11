@@ -7,6 +7,7 @@ function App() {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [aiSummary, setAiSummary] = useState("");
+  const [predictions, setPredictions] = useState([]);
   const [isAsking, setIsAsking] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
@@ -34,6 +35,11 @@ function App() {
     fetch("http://127.0.0.1:8000/notifications/")
       .then((res) => res.json())
       .then((data) => setNotifications(data))
+      .catch((err) => console.error(err));
+
+      fetch("http://127.0.0.1:8000/predictions/")
+      .then((res) => res.json())
+      .then((data) => setPredictions(data))
       .catch((err) => console.error(err));
   }, []);
 
@@ -186,6 +192,28 @@ function App() {
                     1 delayed order
                   </p>
                 </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
+              <h2 className="text-2xl font-semibold mb-4">
+                Predictive Insights
+              </h2>
+
+              <div className="space-y-3">
+                {predictions.map((prediction, index) => (
+                  <div
+                    key={index}
+                    className={`px-4 py-3 rounded-xl border ${
+                      prediction.type === "critical"
+                        ? "bg-red-500/10 border-red-500/20 text-red-300"
+                        : "bg-yellow-500/10 border-yellow-500/20 text-yellow-300"
+                    }`}
+                  >
+                    {prediction.type === "critical" ? "🚨" : "⚠"}{" "}
+                    {prediction.message}
+                  </div>
+                ))}
               </div>
             </div>
 
