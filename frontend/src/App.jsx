@@ -113,9 +113,17 @@ function App() {
                         <td className="py-3">{order.product}</td>
                         <td className="py-3">{order.quantity}</td>
                         <td className="py-3">
-                          <span className="px-3 py-1 rounded-full bg-zinc-800 text-sm">
-                            {order.status}
-                          </span>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm ${
+                              order.status === "Delayed"
+                                ? "bg-red-500/20 text-red-300"
+                                : order.status === "Shipped"
+                                ? "bg-blue-500/20 text-blue-300"
+                                : "bg-zinc-800 text-zinc-300"
+                            }`}
+                            >
+                              {order.status}
+                            </span>
                         </td>
                       </tr>
                     ))}
