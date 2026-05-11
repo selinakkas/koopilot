@@ -20,6 +20,9 @@ function App() {
   const [predictions, setPredictions] = useState([]);
   const [isAsking, setIsAsking] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [complaint, setComplaint] = useState("");
+  const [complaintResult, setComplaintResult] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/dashboard/summary")
@@ -103,6 +106,37 @@ function App() {
       setIsAsking(false);
     }
   };
+
+  const handleComplaintAnalysis = async () => {
+  if (!complaint.trim()) return;
+
+  setIsAnalyzing(true);
+  setComplaintResult(null);
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/complaints/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        customer_message: complaint,
+      }),
+    });
+
+    const data = await response.json();
+    setComplaintResult(data);
+  } catch (error) {
+    console.error(error);
+    setComplaintResult({
+      severity: "ERROR",
+      summary: complaint,
+      recommended_action: "Something went wrong while analyzing the complaint.",
+    });
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-8">
@@ -348,7 +382,62 @@ function App() {
                 </ResponsiveContainer>
               </div>
             </div>
+                
 
+            <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
+              <h2 className="text-2xl font-semibold mb-4">
+                Customer Complaint Simulator
+              </h2>
+
+              <p className="text-zinc-400 mb-4">
+                Simulate a customer complaint and let Koopilot classify its severity and suggest an action.
+              </p>
+
+              <textarea
+                value={complaint}
+                onChange={(e) => setComplaint(e.target.value)}
+                placeholder="Example: My order has not arrived and the delivery is late."
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none min-h-28"
+              />
+
+              <button
+                onClick={handleComplaintAnalysis}
+                disabled={isAnalyzing}
+                className="mt-4 bg-white text-black px-6 py-3 rounded-xl font-semibold hover:bg-zinc-300 transition disabled:opacity-60"
+              >
+                {isAnalyzing ? "Analyzing..." : "Analyze Complaint"}
+              </button>
+
+              {complaintResult && (
+                <div className="mt-6 bg-zinc-800 rounded-xl p-4 border border-zinc-700">
+                  <div className="mb-3">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        complaintResult.severity === "HIGH"
+                          ? "bg-red-500/20 text-red-300"
+                          : complaintResult.severity === "MEDIUM"
+                          ? "bg-yellow-500/20 text-yellow-300"
+                          : "bg-green-500/20 text-green-300"
+                      }`}
+                    >
+                      Severity: {complaintResult.severity}
+                    </span>
+                  </div>
+
+                  <p className="text-zinc-300 mb-3">
+                    <span className="font-semibold text-white">Complaint:</span>{" "}
+                    {complaintResult.summary}
+                  </p>
+
+                  <p className="text-zinc-300">
+                    <span className="font-semibold text-white">Recommended Action:</span>{" "}
+                    {complaintResult.recommended_action}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
               <h2 className="text-2xl font-semibold mb-4">
                 AI Operations Assistant
