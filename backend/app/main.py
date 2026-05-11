@@ -9,6 +9,7 @@ from app.routes.orders import router as orders_router
 from app.routes.products import router as products_router
 from app.routes.notifications import router as notifications_router
 from app.routes.predictions import router as predictions_router
+from app.routes.complaints import router as complaints_router
 
 app = FastAPI(title="Koopilot API")
 
@@ -29,6 +30,7 @@ app.include_router(dashboard_router)
 app.include_router(chat_router)
 app.include_router(notifications_router)
 app.include_router(predictions_router)
+app.include_router(complaints_router)
 
 
 @app.get("/")
