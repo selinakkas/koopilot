@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 function App() {
   const [dashboard, setDashboard] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("");
   const [chatResponse, setChatResponse] = useState("");
 
@@ -15,6 +16,11 @@ function App() {
     fetch("http://127.0.0.1:8000/orders/")
       .then((res) => res.json())
       .then((data) => setOrders(data))
+      .catch((err) => console.error(err));
+
+    fetch("http://127.0.0.1:8000/products/")
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
       .catch((err) => console.error(err));
   }, []);
 
@@ -113,6 +119,51 @@ function App() {
                         </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
+              <h2 className="text-2xl font-semibold mb-4">Inventory Status</h2>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-zinc-400 border-b border-zinc-800">
+                      <th className="py-3">Product</th>
+                      <th className="py-3">Stock</th>
+                      <th className="py-3">Critical Level</th>
+                      <th className="py-3">Status</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {products.map((product) => {
+                      const isCritical = product.stock <= product.critical_stock;
+
+                      return (
+                        <tr
+                          key={product.id}
+                          className="border-b border-zinc-800"
+                        >
+                          <td className="py-3">{product.name}</td>
+                          <td className="py-3">{product.stock}</td>
+                          <td className="py-3">{product.critical_stock}</td>
+                          <td className="py-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm ${
+                                isCritical
+                                  ? "bg-yellow-500/20 text-yellow-300"
+                                  : "bg-green-500/20 text-green-300"
+                              }`}
+                            >
+                              {isCritical ? "Critical" : "Healthy"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
