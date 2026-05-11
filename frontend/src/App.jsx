@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+
 function App() {
   const [dashboard, setDashboard] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -302,6 +312,40 @@ function App() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
+              <h2 className="text-2xl font-semibold mb-6">
+                Inventory Analytics
+              </h2>
+
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={products}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#27272a"
+                    />
+
+                    <XAxis
+                      dataKey="name"
+                      stroke="#a1a1aa"
+                    />
+
+                    <YAxis
+                      stroke="#a1a1aa"
+                    />
+
+                    <Tooltip />
+
+                    <Bar
+                      dataKey="stock"
+                      fill="#eab308"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
