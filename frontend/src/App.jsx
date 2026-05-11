@@ -5,7 +5,7 @@ function App() {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("");
-  const [chatResponse, setChatResponse] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
   const [aiSummary, setAiSummary] = useState("");
   const [isAsking, setIsAsking] = useState(false);
 
@@ -32,10 +32,20 @@ function App() {
   }, []);
 
   const handleChat = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || isAsking) return;
+
+    const userMessage = message;
 
     setIsAsking(true);
-    setChatResponse("");
+    setMessage("");
+
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: userMessage,
+      },
+    ]);
 
     try {
       const response = await fetch("http://127.0.0.1:8000/chat/", {
@@ -43,14 +53,30 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          message: userMessage,
+        }),
       });
 
       const data = await response.json();
-      setChatResponse(data.answer);
+
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.answer,
+        },
+      ]);
     } catch (error) {
       console.error(error);
-      setChatResponse("Something went wrong while contacting the assistant.");
+
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Something went wrong.",
+        },
+      ]);
     } finally {
       setIsAsking(false);
     }
@@ -201,6 +227,11 @@ function App() {
                   placeholder="Ask about orders, stock or shipments..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleChat();
+                    }
+                  }}
                   className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none"
                 />
 
@@ -213,13 +244,24 @@ function App() {
                 </button>
               </div>
 
-              {chatResponse && (
-                <div className="mt-6 bg-zinc-800 rounded-xl p-4 border border-zinc-700">
-                  <p className="text-zinc-200 leading-relaxed">
-                    {chatResponse}
-                  </p>
-                </div>
-              )}
+              <div className="mt-6 space-y-4">
+                {chatHistory.map((chat, index) => (
+                  <div
+                    key={index}
+                    className={`p-4 rounded-xl border ${
+                      chat.role === "user"
+                        ? "bg-zinc-800 border-zinc-700"
+                        : "bg-white text-black border-white"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold mb-1">
+                      {chat.role === "user" ? "You" : "Koopilot AI"}
+                    </p>
+
+                    <p>{chat.content}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}
