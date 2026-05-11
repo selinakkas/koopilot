@@ -146,6 +146,28 @@ function App() {
     }
   };
 
+  const handleDownloadReport = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/reports/daily");
+    const reportText = await response.text();
+
+    const blob = new Blob([reportText], {
+      type: "text/plain",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "koopilot-daily-report.txt";
+    link.click();
+
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-7xl mx-auto">
@@ -259,6 +281,12 @@ function App() {
                   <p className="text-zinc-300 leading-relaxed">
                     {aiSummary || dashboard.daily_summary}
                   </p>
+                  <button
+                    onClick={handleDownloadReport}
+                    className="mt-6 bg-white text-black px-6 py-3 rounded-xl font-semibold hover:bg-zinc-300 transition"
+                  >
+                    Download Daily Report
+                  </button>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                     <div className="bg-zinc-800 rounded-xl p-4 border border-zinc-700">
