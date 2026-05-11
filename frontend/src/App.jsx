@@ -28,6 +28,7 @@ function App() {
   const [showAllPredictions, setShowAllPredictions] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(false);
   const [showAllProducts, setShowAllProducts] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("owner");
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/dashboard/summary")
@@ -154,6 +155,26 @@ function App() {
           <p className="text-zinc-400 mt-2">
             AI-powered operations copilot for small businesses
           </p>
+
+          <div className="flex flex-wrap gap-3 mt-5">
+            {[
+              { id: "owner", label: "Owner Dashboard" },
+              { id: "warehouse", label: "Warehouse View" },
+              { id: "support", label: "Support View" },
+            ].map((role) => (
+              <button
+                key={role.id}
+                onClick={() => setSelectedRole(role.id)}
+                className={`px-4 py-2 rounded-xl text-sm border transition ${
+                  selectedRole === role.id
+                    ? "bg-white text-black border-white"
+                    : "bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800"
+                }`}
+              >
+                {role.label}
+              </button>
+            ))}
+          </div>
 
           <div className="mt-4 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
             <p className="text-sm text-zinc-400 mb-3">
