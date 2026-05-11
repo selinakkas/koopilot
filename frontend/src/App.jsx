@@ -90,6 +90,9 @@ function App() {
           <p className="text-zinc-400 mt-2">
             AI-powered operations copilot for small businesses
           </p>
+          <div className="mt-4 bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 px-4 py-3 rounded-xl">
+            ⚠ Live Alert: Order #129 has been marked as delayed.
+          </div>
         </div>
 
         {!dashboard ? (
