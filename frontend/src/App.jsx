@@ -148,18 +148,14 @@ function App() {
 
   const handleDownloadReport = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/reports/daily");
-    const reportText = await response.text();
-
-    const blob = new Blob([reportText], {
-      type: "text/plain",
-    });
+    const response = await fetch("http://127.0.0.1:8000/reports/daily/pdf");
+    const blob = await response.blob();
 
     const url = window.URL.createObjectURL(blob);
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = "koopilot-daily-report.txt";
+    link.download = "koopilot-daily-report.pdf";
     link.click();
 
     window.URL.revokeObjectURL(url);
