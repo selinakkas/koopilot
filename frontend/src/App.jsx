@@ -5,6 +5,7 @@ function App() {
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("");
+  const [aiSummary, setAiSummary] = useState("");
   const [chatResponse, setChatResponse] = useState("");
 
   useEffect(() => {
@@ -22,7 +23,12 @@ function App() {
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error(err));
-  }, []);
+      }, []);
+
+    fetch("http://127.0.0.1:8000/dashboard/ai-summary")
+    .then((res) => res.json())
+    .then((data) => setAiSummary(data.summary))
+    .catch((err) => console.error(err));
 
   const handleChat = async () => {
     if (!message.trim()) return;
@@ -86,7 +92,7 @@ function App() {
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
               <h2 className="text-2xl font-semibold mb-4">Daily AI Summary</h2>
               <p className="text-zinc-300 leading-relaxed">
-                {dashboard.daily_summary}
+                {aiSummary}
               </p>
             </div>
 
