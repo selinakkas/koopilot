@@ -49,3 +49,39 @@ Include useful context when possible.
     )
 
     return response.choices[0].message.content
+
+def analyze_complaint_with_ai(customer_message: str) -> dict:
+    prompt = f"""
+You are Koopilot, an AI operations assistant for small businesses.
+
+Analyze the following customer complaint and return:
+1. severity: LOW, MEDIUM, or HIGH
+2. summary: a short summary of the complaint
+3. recommended_action: a clear operational action for the team
+
+Customer complaint:
+{customer_message}
+
+Return your answer strictly as JSON with these keys:
+severity, summary, recommended_action
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a professional operations support analyst."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.3,
+    )
+
+    content = response.choices[0].message.content
+
+    import json
+    return json.loads(content)
