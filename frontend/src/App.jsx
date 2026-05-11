@@ -118,14 +118,51 @@ function App() {
                 <p className="text-4xl font-bold text-yellow-400">
                   {dashboard.critical_products}
                 </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                </div>
               </div>
             </div>
 
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-              <h2 className="text-2xl font-semibold mb-4">Daily AI Summary</h2>
+              <h2 className="text-2xl font-semibold mb-4">
+                Daily AI Summary
+              </h2>
+
               <p className="text-zinc-300 leading-relaxed">
                 {aiSummary || dashboard.daily_summary}
               </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="bg-zinc-800 rounded-xl p-4 border border-zinc-700">
+                  <p className="text-sm text-zinc-400 mb-1">
+                    Recommended Action
+                  </p>
+
+                  <p className="font-semibold">
+                    Restock critical products
+                  </p>
+                </div>
+
+                <div className="bg-zinc-800 rounded-xl p-4 border border-zinc-700">
+                  <p className="text-sm text-zinc-400 mb-1">
+                    Priority
+                  </p>
+
+                  <p className="font-semibold text-yellow-300">
+                    Medium
+                  </p>
+                </div>
+
+                <div className="bg-zinc-800 rounded-xl p-4 border border-zinc-700">
+                  <p className="text-sm text-zinc-400 mb-1">
+                    Shipment Follow-up
+                  </p>
+
+                  <p className="font-semibold text-red-300">
+                    1 delayed order
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mt-8">
@@ -261,7 +298,7 @@ function App() {
                 </button>
               </div>
 
-              <div className="mt-6 space-y-4">
+              <div className="mt-6 space-y-4 max-h-96 overflow-y-auto pr-2">
                 {chatHistory.map((chat, index) => (
                   <div
                     key={index}
