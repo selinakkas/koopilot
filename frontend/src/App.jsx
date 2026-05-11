@@ -24,7 +24,7 @@ function App() {
   const [complaint, setComplaint] = useState("");
   const [complaintResult, setComplaintResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
   const [showAllPredictions, setShowAllPredictions] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(false);
@@ -169,7 +169,58 @@ function App() {
     console.error(error);
   }
 };
+if (!isLoggedIn) {
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-8">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-xl w-full">
+        <h1 className="text-4xl font-bold mb-3">
+          Welcome to Koopilot
+        </h1>
 
+        <p className="text-zinc-400 mb-8">
+          Select a dashboard role to access the AI-powered operations platform.
+        </p>
+
+        <div className="space-y-4">
+          {[
+            {
+              id: "owner",
+              label: "Executive Dashboard",
+              desc: "Company-wide operational intelligence and AI insights",
+            },
+            {
+              id: "warehouse",
+              label: "Warehouse Operations",
+              desc: "Inventory tracking, shipment monitoring, and stock risks",
+            },
+            {
+              id: "support",
+              label: "Customer Support",
+              desc: "Complaint analysis, delayed orders, and AI assistance",
+            },
+          ].map((role) => (
+            <button
+              key={role.id}
+              onClick={() => {
+                setSelectedRole(role.id);
+                setIsLoggedIn(true);
+              }}
+              className="w-full text-left bg-zinc-800 border border-zinc-700 rounded-xl p-4 hover:bg-zinc-700 transition"
+            >
+              <p className="font-semibold">
+                {role.label}
+              </p>
+
+              <p className="text-sm text-zinc-400 mt-1">
+                {role.desc}
+              </p>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-7xl mx-auto">
