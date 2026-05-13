@@ -9,19 +9,17 @@ router = APIRouter(
 
 
 class ComplaintRequest(BaseModel):
-    customer_message: str
+    text: str
 
 @router.post("/analyze")
 def analyze_complaint(request: ComplaintRequest):
 
     try:
-        return analyze_complaint_with_ai(
-            request.customer_message
-        )
+        return analyze_complaint_with_ai(request.text)
     except Exception:
         pass
 
-    message = request.customer_message.lower()
+    message = request.text.lower()
 
     severity = "LOW"
     recommended_action = (
@@ -30,7 +28,6 @@ def analyze_complaint(request: ComplaintRequest):
 
     if "late" in message or "delayed" in message or "not arrived" in message:
         severity = "HIGH"
-
         recommended_action = (
             "Prioritize shipment follow-up, inform the customer proactively, "
             "and check if the related order has a delayed cargo status."
@@ -38,20 +35,18 @@ def analyze_complaint(request: ComplaintRequest):
 
     elif "stock" in message or "available" in message:
         severity = "MEDIUM"
-
         recommended_action = (
             "Check product availability and provide the customer with an updated stock status."
         )
 
     elif "wrong" in message or "damaged" in message:
         severity = "HIGH"
-
         recommended_action = (
             "Escalate to support team, verify the order details, and offer replacement or refund options."
         )
 
     return {
         "severity": severity,
-        "summary": request.customer_message,
+        "summary": request.text,
         "recommended_action": recommended_action
     }

@@ -1,4 +1,5 @@
 import os
+import json
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -50,20 +51,23 @@ Include useful context when possible.
 
     return response.choices[0].message.content
 
+
 def analyze_complaint_with_ai(customer_message: str) -> dict:
     prompt = f"""
 You are Koopilot, an AI operations assistant for small businesses.
 
 Analyze the following customer complaint and return:
 1. severity: LOW, MEDIUM, or HIGH
-2. summary: a short summary of the complaint
-3. recommended_action: a clear operational action for the team
+2. category: one of Shipment, Stock, Product Quality, General
+3. ai_response: a friendly, empathetic response to send to the customer
+4. recommended_action: a clear operational action for the internal team
 
 Customer complaint:
 {customer_message}
 
-Return your answer strictly as JSON with these keys:
-severity, summary, recommended_action
+Return ONLY valid JSON with these exact keys:
+severity, category, ai_response, recommended_action
+No markdown, no code blocks, just raw JSON.
 """
 
     response = client.chat.completions.create(
@@ -71,7 +75,7 @@ severity, summary, recommended_action
         messages=[
             {
                 "role": "system",
-                "content": "You are a professional operations support analyst."
+                "content": "You are a professional operations support analyst. Always respond with raw JSON only."
             },
             {
                 "role": "user",
@@ -81,7 +85,12 @@ severity, summary, recommended_action
         temperature=0.3,
     )
 
-    content = response.choices[0].message.content
+    content = response.choices[0].message.content.strip()
 
-    import json
+    if content.startswith("```"):
+        content = content.split("```")[1]
+        if content.startswith("json"):
+            content = content[4:]
+        content = content.strip()
+
     return json.loads(content)

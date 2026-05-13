@@ -209,7 +209,20 @@ function App() {
                 <p className="text-slate-300 text-lg font-light italic leading-relaxed">
                   {aiSummary.split(' ').map((word, i) => i % 6 === 0 ? <b key={i} className="text-white font-bold">{word} </b> : word + ' ')}
                 </p>
-                <button className="mt-8 bg-white text-[#020617] px-6 py-2.5 rounded-2xl font-black uppercase text-[10px] hover:bg-[#A5D8FF] transition-all">Download Report</button>
+                <button
+                  onClick={async () => {
+                    const res = await fetch("http://127.0.0.1:8000/dashboard/report");
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `koopilot_report_${new Date().toISOString().slice(0,10)}.pdf`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                  }}
+                  className="mt-8 bg-white text-[#020617] px-6 py-2.5 rounded-2xl font-black uppercase text-[10px] hover:bg-[#A5D8FF] transition-all">
+                  Download Report
+                </button>
               </div>
               <div className="bg-white/5 border border-white/5 p-10 rounded-[3rem]">
                 <h2 className="text-xl font-black mb-6 text-white underline decoration-[#A5D8FF]/30 underline-offset-4 font-sans">AI Daily Action Plan</h2>
