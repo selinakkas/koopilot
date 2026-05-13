@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API_BASE from "./config";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, LabelList
 } from "recharts";
@@ -30,12 +31,12 @@ function App() {
     const fetchData = async () => {
       try {
         const [dashRes, ordersRes, productsRes, aiRes, predRes, planRes] = await Promise.all([
-          fetch("http://127.0.0.1:8000/dashboard/summary"),
-          fetch("http://127.0.0.1:8000/orders/"),
-          fetch("http://127.0.0.1:8000/products/"),
-          fetch("http://127.0.0.1:8000/dashboard/ai-summary"),
-          fetch("http://127.0.0.1:8000/predictions/"),
-          fetch("http://127.0.0.1:8000/dashboard/action-plan")
+          fetch(`${API_BASE}/dashboard/summary`),
+          fetch(`${API_BASE}/orders/`),
+          fetch(`${API_BASE}/products/`),
+          fetch(`${API_BASE}/dashboard/ai-summary`),
+          fetch(`${API_BASE}/predictions/`),
+          fetch(`${API_BASE}/dashboard/action-plan`)
         ]);
 
         setDashboard(await dashRes.json());
@@ -67,7 +68,7 @@ function App() {
     setIsAsking(true); setMessage("");
     setChatHistory(prev => [...prev, { role: "user", content: msg }]);
     try {
-      const res = await fetch("http://127.0.0.1:8000/chat/", {
+      const res = await fetch(`${API_BASE}/chat/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg }),
@@ -81,7 +82,7 @@ function App() {
     if (!complaint) return;
     setIsAnalyzing(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/complaints/analyze", {
+      const res = await fetch(`${API_BASE}/complaints/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: complaint })
@@ -211,7 +212,7 @@ function App() {
                 </p>
                 <button
                   onClick={async () => {
-                    const res = await fetch("http://127.0.0.1:8000/dashboard/report");
+                    const res = await fetch(`${API_BASE}/dashboard/report`);
                     const blob = await res.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement("a");
